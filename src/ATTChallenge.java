@@ -1,17 +1,45 @@
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Create a simple class using native java* (no 3rd party libraries like apache commons, spring, etc) that will accept a url as an input (either via arguments or a properties file) and consume a REST endpoint (HTTP GET) and process the output.
+ 1. The rest endpoint will emit an array of JSON documents, each JSON document will be a complete flat (non nested) record.
+ 2. For each document display all of the keys of the JSON in standard out
+ 3. There will be a json array of integers with the key of "numbers", sum all of the integers and display the sum on standard out, add that sum to a running total for the program
+ 4. Display the total of the integers that were summed for the execution
+ *Because java does not have a native JSON parser you can use a JSON library of your choosing (JSON.simple, GSON, Jackson, jettison, JSONP etc)
+
+
+ NOTE the phrase "emit an array of JSON documents" is awkward, I am assuming that the GET response will be a JSON array of objects like
+
+ [
+ {
+ "name":"john smith",
+ "age" : "33",
+ "numbers" : [1,2,3,4]
+ }
+ ,
+ {
+ "name":"willma rudolph",
+ "age" : "158",
+ "numbers" : [10,20,30,40,3333333,333]
+ }
+ ]
+ */
 
 public class ATTChallenge {
 
     private ATTChallenge(){
     }
 
+    /** handles URL or the path to a file
+     *
+     * @param url
+     */
     private void handleURL(String url){
         int total = 0;
         try{
@@ -41,7 +69,12 @@ public class ATTChallenge {
         System.out.println("Sum of all number arrays = " + total);
     }
 
-
+    /**
+     * handles local file
+     * @param path
+     * @return
+     * @throws Exception
+     */
     private Object getJSONFromFile(String path)throws Exception {
         File file = new File(path);
         FileReader fileReader = new FileReader(file);
@@ -55,7 +88,12 @@ public class ATTChallenge {
         return JSONValue.parse(sb.toString());
     }
 
-
+    /**
+     * handles URL
+     * @param urlString
+     * @return
+     * @throws Exception
+     */
     private JSONObject getJSONFromHTTP(String urlString)throws Exception {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -105,8 +143,6 @@ public class ATTChallenge {
             System.out.println("Usage: ATTChallenge URL");
             System.exit(0 );
         }
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
         String url = args[0];
         ATTChallenge instance = new ATTChallenge();
         instance.handleURL(url);
